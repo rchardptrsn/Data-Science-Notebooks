@@ -1,0 +1,22 @@
+# initially launch docker container 
+docker run -it -p 8888:8888 jupyter/pyspark-notebook
+
+# after exiting, get the docker CONTAINER ID
+docker ps -a
+
+# if needed, stop the container
+docker stop <CONTAINER ID>
+
+# Start the docker container for your previous session
+docker start <CONTAINER ID>
+
+#Your Jupyter notebook server will then again be running on 
+http://localhost:8888
+
+# Get the Jupyter token by entering the container
+docker exec -it <CONTAINER ID> /bin/bash
+# and running
+jupyter notebook list
+# when logging in, you can set the password so that this step is no longer necessary
+
+

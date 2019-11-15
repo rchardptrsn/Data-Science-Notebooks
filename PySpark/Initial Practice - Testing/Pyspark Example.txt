@@ -1,0 +1,99 @@
+# Install some libraries and get the spark session
+
+! conda install -c anaconda psycopg2 -y
+# import necessary libraries
+import pandas as pd 
+import numpy
+import matplotlib.pyplot as plt 
+from pyspark.sql import SparkSession
+import psycopg2
+# create sparksession
+spark = SparkSession \
+    .builder \
+    .appName ("Pysparkexample") \
+    .config ("spark.some.config.option","some-value") \
+    .getOrCreate()
+
+! wget -O vvp.csv https://data.vermont.gov/api/views/786x-sbp3/rows.csv?accessType=DOWNLOAD
+
+#For this analysis I will read in the data using the inferSchema option and cast the Amount column to a double.
+df = spark.read.csv('vvp.csv',header='true',inferSchema=True)
+df = df.withColumn("Amount",df["Amount"].cast("double"))
+
+
+# we can use the columns attribute just like with pandas
+columns = df.columns
+print('The column Names are: ')
+for i in columns:
+    print(i)
+
+#show first 5 rows
+df.show(5)
+
+#show first row
+df.head()
+
+df.describe().show()
+
+
+# I will start by creating a temporary table query with SQL named VermontVendor
+df.createOrReplaceTempView('VermontVendor')
+spark.sql(
+'''
+SELECT `Quarter Ending`, Department, Amount, State FROM VermontVendor 
+LIMIT 10
+'''
+).show()
+
+
+df.select('Quarter Ending','Department','Amount','State').show(10)
+
+spark.sql(
+'''
+SELECT `Quarter Ending`, Department,Amount,State FROM VermontVendor
+WHERE Department = 'Education'
+LIMIT 10
+'''
+).show()
+
+
+df.select('Quarter Ending','Department','Amount','State').filter(df['Department']=='Education').show(10)
+
+###################
+plot_df = spark.sql(
+'''
+SELECT Department, SUM(Amount) as Total FROM VermontVendor
+GROUP BY Department
+ORDER BY Total DESC
+LIMIT 10
+'''
+).toPandas()
+
+fig,ax = plt.subplots(1,1,figsize=(10,6))
+plot_df.plot(x = 'Department', y = 'Total', kind = 'barh', color = 'C0', ax = ax, legend = False)
+ax.set_xlabel('Department', size = 16)
+ax.set_ylabel('Total', size = 16)
+plt.savefig('barplot.png')
+plt.show()
+
+###########
+
+import numpy as np
+import seaborn as sns
+
+plot_df2 = spark.sql(
+'''
+SELECT Department,SUM(Amount) as Total FROM VermontVendor
+GROUP BY Department
+'''
+).toPandas()
+
+plt.figure(figsize = (10,6))
+sns.distplot(np.log(plot_df2['Total']))
+plt.title('Histogram of Log Totals for all Departments in Dataset', size = 16)
+plt.ylabel('Density', size = 16)
+plt.xlabel('Log Total', size = 16)
+plt.savefig('distplot.png')
+plt.show()
+
+#######################

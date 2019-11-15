@@ -1,0 +1,60 @@
+createdAt: "2019-11-11T12:44:24.957Z"
+updatedAt: "2019-11-11T12:48:42.571Z"
+type: "MARKDOWN_NOTE"
+folder: "bc2389d69e5c7a9e3a3b"
+title: "Missing Data"
+tags: [
+  "missing_data"
+  "NA"
+]
+content: '''
+  # 
+  # Missing Data
+  ### Import Spark module and create session
+  ```python
+  from pyspark.sql import SparkSession
+  spark = SparkSession.builder.appName('miss').getOrCreate()
+  df = spark.read.csv('ContainsNull.csv',header=True,inferSchema=True)
+  df.show()
+  ```
+  ## Removes NAs
+  ```python
+  # removes rows that have more than 2 Null values
+  df.na.drop(thresh=2).show()
+  
+  # drop rows that have all null values
+  df.na.drop(how='all').show()
+  
+  # remove row if 'Sales' column is null
+  df.na.drop(subset=['Sales']).show()
+  ```
+  ## Fills NAs
+  ```python
+  # fills only string type values
+  df.na.fill('FILL VALUE').show()
+  
+  # fills only numeric type values
+  df.na.fill(0).show()
+  
+  # fills only for a specific column
+  df.na.fill('No Name',subset=['Name']).show()
+  ```
+  ## Fills using a function
+  ```python
+  from pyspark.sql.functions import mean
+  # find the mean of Sales and collect it as an object/dict
+  mean_val = df.select(mean(df['Sales'])).collect()
+  # Select the first item in the object/dict
+  mean_sales = mean_val[0][0]
+  
+  # Fill the original dataframe with the result of your mean sales calculation
+  df.na.fill(mean_sales,['Sales']).show()
+  # Collect the results of the fill
+  df.na.fill(df.select(mean(df['Sales'])) \\
+              .collect()[0][0],['Sales']) \\
+              .show()
+  ```
+'''
+linesHighlighted: []
+isStarred: false
+isTrashed: false

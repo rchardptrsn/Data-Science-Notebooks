@@ -1,0 +1,74 @@
+createdAt: "2019-11-11T12:31:16.654Z"
+updatedAt: "2019-11-11T12:43:19.613Z"
+type: "MARKDOWN_NOTE"
+folder: "bc2389d69e5c7a9e3a3b"
+title: "GroupBy Aggregate"
+tags: [
+  "groupby"
+  "agg"
+  "import"
+  "format_number"
+  "orderby"
+]
+content: '''
+  #
+  # GroupBy Aggregate
+  ### Import Spark module and create session
+  ```python
+  from pyspark.sql import SparkSession
+  spark = SparkSession.builder.appName('aggs').getOrCreate()
+  
+  # Read in data
+  df = spark.read.csv('sales_info.csv',inferSchema=True,header=True)
+  df.show()
+  df.printSchema()
+  ```
+  ### groupBy
+  ```python
+  # creates a grouped object with no agg functions or changes
+  df.groupBy('Company')
+  # groupBy company, find mean, show it
+  df.groupBy('Company').mean().show()
+  ```
+  ### agg
+  ```python
+  # find sum of all sales
+  df.agg({'Sales':'sum'}).show()
+  
+  # find sum of sales per company
+  group_data = df.groupBy('Company')
+  group_data.agg({'Sales':'max'}).show()
+  # as a one-liner
+  df.groupBy('Company').agg({'Sales':'max'}).show()
+  ```
+  ### Import Functions
+  ```python
+  from pyspark.sql.functions import countDistinct,avg,stddev
+  # import a function and apply it to a specific column
+  # give the column an alias
+  # Average
+  df.select(avg('Sales').alias('Average Sales')).show()
+  # Standard Deviation
+  df.select(stddev('Sales')).show()
+  ```
+  ### Format number
+  ```python
+  from pyspark.sql.functions import format_number
+  # find the standard deviation of sales and assign an alias
+  sales_std = df.select(stddev('Sales').alias('std'))
+  # select the alias column and format the number to 2 decimal places
+  sales_std.select(format_number('std',2).alias('Standard Deviation')).show()
+  ```
+  ### orderBy
+  ```python
+  # Ascending
+  df.orderBy('Sales').show()
+  
+  # Same as above but descending
+  df.orderBy(df['Sales'].desc()).show()
+  ```
+  
+'''
+linesHighlighted: []
+isStarred: false
+isTrashed: false

@@ -1,0 +1,50 @@
+createdAt: "2019-11-11T12:25:38.159Z"
+updatedAt: "2019-11-11T12:43:39.348Z"
+type: "MARKDOWN_NOTE"
+folder: "bc2389d69e5c7a9e3a3b"
+title: "Operations"
+tags: [
+  "schema"
+  "filter"
+  "collect"
+]
+content: '''
+  # 
+  # Operations
+  ### Import Spark Module and create Session
+  ```python
+  from pyspark.sql import SparkSession
+  spark = SparkSession.builder.appName('ops').getOrCreate()
+  ```
+  ### Read in the data and inspect
+  ```python
+  df = spark.read.csv('appl_stock.csv',inferSchema=True,header=True)
+  df.printSchema()
+  df.show()
+  # grab top 3 rows, select 1st row object
+  df.head(3)[0] 
+  ```
+  ### Filter operations
+  ```python
+  # returns all columns
+  df.filter('Close < 500').show(2)
+  # returns Open and Close columns
+  df.filter('Close < 500').select(['Open','Close']).show(10)
+  # returns Volume Column
+  df.filter(df['Close'] < 500).select('Volume').show()
+  # filter by a range of values
+  df.filter((df['close'] < 200) & (df['open'] > 200)).show()
+  ```
+  ### Save results to a new variable
+  ```python
+  # .collect saves the data to a variable
+  result = df.filter(df['Low'] == 197.16).collect()
+  # Get the first object of the saved results
+  row = result[0]
+  # Get the volumn column from the saved results
+  row.asDict()['Volume']
+  ```
+'''
+linesHighlighted: []
+isStarred: false
+isTrashed: false

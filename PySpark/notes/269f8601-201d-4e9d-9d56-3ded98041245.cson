@@ -1,0 +1,37 @@
+createdAt: "2019-11-11T12:49:10.185Z"
+updatedAt: "2019-11-11T12:54:03.262Z"
+type: "MARKDOWN_NOTE"
+folder: "bc2389d69e5c7a9e3a3b"
+title: "Dates and Timestamps"
+tags: []
+content: '''
+  #
+  # Dates and Timestamps
+  ### Import Spark modules and create session
+  ```python
+  from pyspark.sql import SparkSession
+  spark = SparkSession.builder.appName('dates').getOrCreate()
+  
+  df = spark.read.csv('appl_stock.csv',header=True,inferSchema=True)
+  df.head(1)
+  
+  df.select(['Date','Open']).show()
+  ```
+  ## Spark Date functions
+  ```python
+  from pyspark.sql.functions import (dayofmonth,hour,dayofyear,month,year,weekofyear,format_number,date_format)
+  # Inspect data with month converted to number
+  df.select(month(df['Date'])).show()
+  # create new df object with a "Year" column
+  newdf = df.withColumn("Year",year(df['Date']))
+  # groupBy year, find the mean, and select two columns
+  result = newdf.groupBy("Year").mean().select(["Year","avg(Close)"])
+  # rename the avg(close) column
+  new = result.withColumnRenamed("avg(close)","Average Closing Price")
+  # show the new dataframe - format number and assign alias
+  new.select(['Year', format_number("Average Closing Price",2).alias("Avg Close")]).show()
+  ```
+'''
+linesHighlighted: []
+isStarred: false
+isTrashed: false

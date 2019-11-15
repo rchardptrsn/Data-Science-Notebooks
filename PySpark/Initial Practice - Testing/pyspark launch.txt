@@ -1,0 +1,12 @@
+setx SPARK_HOME C:\opt\spark\spark-2.4.4-bin-hadoop2.7
+
+setx HADOOP_HOME C:\opt\spark\spark-2.4.4-bin-hadoop2.7
+
+setx PYSPARK_DRIVER_PYTHON ipython
+
+setx PYSPARK_DRIVER_PYTHON_OPTS notebook
+
+C:\opt\spark\spark-2.4.4-bin-hadoop2.7\bin
+
+conda activate spark
+pyspark --master local[4] # number of cores
